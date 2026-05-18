@@ -1,6 +1,6 @@
 package com.neudoc.clashroyale.constant;
 
 public enum Team {
-    PLAYER,//玩家
-    ENEMY//电脑
+    BLUE,//玩家
+    RED//电脑
 }

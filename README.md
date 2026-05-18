@@ -52,6 +52,9 @@ my-clash-royale-server/
 ├── player/                # 🪙 【玩家核心资产域】
 │   └── Player.java        # 玩家账户类：存储玩家ID、金币、宝石、国王塔等级，以及个人卡组（哈希表存储卡牌名与等级/碎片数）
 │
+├──factory/                # 📦 【设计模式应用】
+|   └── UnitFactory        # 工厂模式（Factory Pattern）：核心战斗单位的生命周期与属性初始化均由 UnitFactory统一接管
+|
 └── util/                  # 🛠️ 【算法工具箱】
 └── MathUtil.java      # 数学工具类：提供静态方法，计算两点间欧几里得距离、圆形法术范围碰撞检测（AABB/包围盒检测）
 ```
