@@ -14,6 +14,10 @@ public class BattleField {
     //实体集合：敌我双方所有的士兵，建筑
     private final List<GameEntity> entities = new ArrayList<>();
 
+    // 💧 蓝方和红方的圣水管理器
+    private final ElixirManager blueElixir = new ElixirManager();
+    private final ElixirManager redElixir = new ElixirManager();
+
     //动态出生：将卡牌放入战场
     public void addEntity(GameEntity entity) {
         entities.add(entity);
@@ -24,7 +28,15 @@ public class BattleField {
     * 🧠 核心心跳刷新逻辑：每 1/30 秒驱动全场进行一次【扫描 -> 决策 -> 行动】
     */
     public void update() {
-        // 1. 行为决策阶段：遍历全场活物
+        // 💧 1. 圣水随时间流动而增长
+        blueElixir.update();
+        redElixir.update();
+
+        // 打印当前圣水状态
+        System.out.printf("[资源看板] 💧 蓝方圣水: %d | 🔴 红方圣水: %d\n",
+                blueElixir.getAvailableElixir(), redElixir.getAvailableElixir());
+
+        // 2. 行为决策阶段：遍历全场活物
         for(GameEntity entity : entities) {
             if(entity.getState() == EntityState.DEAD)
                 continue;
@@ -67,7 +79,7 @@ public class BattleField {
             }
         }
 
-        //2.清理战场
+        //3.清理战场
         clearDeadEntities();
     }
 
@@ -110,4 +122,7 @@ public class BattleField {
         return entities;
     }
 
+    public ElixirManager getElixirManager(Team team) {
+        return team == Team.BLUE ? blueElixir : redElixir;
+    }
 }
