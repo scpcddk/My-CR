@@ -2,10 +2,13 @@ package com.neudoc.clashroyale.engine;
 
 import com.neudoc.clashroyale.constant.EntityState;
 import com.neudoc.clashroyale.constant.Team;
+import com.neudoc.clashroyale.factory.UnitFactory;
 import com.neudoc.clashroyale.model.GameEntity;
 import com.neudoc.clashroyale.model.Soldier;
 import com.neudoc.clashroyale.model.Tower;
 import com.neudoc.clashroyale.util.MathUtil;
+import com.neudoc.clashroyale.model.Card;
+import com.neudoc.clashroyale.factory.UnitFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,5 +127,36 @@ public class BattleField {
 
     public ElixirManager getElixirManager(Team team) {
         return team == Team.BLUE ? blueElixir : redElixir;
+    }
+
+    /**
+     * 🃏 部署卡牌：扣费 + 召唤实体
+     * @param team 阵营
+     * @param card 要打出的卡牌
+     * @param x    部署X坐标
+     * @param y    部署Y坐标
+     * @return 是否部署成功
+     */
+    public boolean deployCard(Team team,Card card,double x,double y) {
+        ElixirManager em = getElixirManager(team);
+
+        if(em.consume(card.getElixirCost())) {
+            System.out.printf("[卡牌部署] 🎉 %s 成功打出 [%s] 卡牌！(消耗圣水: %d 费)\n",
+                    team == Team.BLUE ? "蓝色方" : "红色方",
+                    card.getCardName(), card.getElixirCost());
+
+            // 根据卡牌名称决定生产什么兵种
+            if(card.getCardName().contains("王子")) {
+                this.addEntity((UnitFactory.createPrincessTower(team,x,y)));
+            }else if (card.getCardName().contains("弓箭手")) {
+                this.addEntity(UnitFactory.createArcher(team,x,y));
+            }
+            return true;
+        }else {
+            System.out.printf("[卡牌部署] ❌ %s 尝试打出 [%s] 失败！圣水不足！(需要 %d 费，当前圣水不足)\n",
+                    team == Team.BLUE ? "蓝色方" : "红色方",
+                    card.getCardName(), card.getElixirCost());
+            return false;
+        }
     }
 }
