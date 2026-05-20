@@ -16,6 +16,7 @@ import java.util.List;
 public class BattleField {
     //实体集合：敌我双方所有的士兵，建筑
     private final List<GameEntity> entities = new ArrayList<>();
+    private final java.util.Map<String,UnitCreator> cardRegistry = new java.util.HashMap<>();
 
     // 💧 蓝方和红方的圣水管理器
     private final ElixirManager blueElixir = new ElixirManager();
@@ -140,23 +141,34 @@ public class BattleField {
     public boolean deployCard(Team team,Card card,double x,double y) {
         ElixirManager em = getElixirManager(team);
 
+        // 1. 查注册表
+        UnitCreator creator = cardRegistry.get(card.getCardName());
+        if(creator == null) {
+            System.out.println("[错误] ⚠️ 未知卡牌，没有登记出兵逻辑: " + card.getCardName());
+            return false;
+        }
+
+        //2.扣费
         if(em.consume(card.getElixirCost())) {
-            System.out.printf("[卡牌部署] 🎉 %s 成功打出 [%s] 卡牌！(消耗圣水: %d 费)\n",
+            System.out.printf("[卡牌部署] 🎉 %s 成功打出 [%s]！(消耗圣水: %d 费)\n",
                     team == Team.BLUE ? "蓝色方" : "红色方",
                     card.getCardName(), card.getElixirCost());
 
-            // 根据卡牌名称决定生产什么兵种
-            if(card.getCardName().contains("王子")) {
-                this.addEntity((UnitFactory.createPrincessTower(team,x,y)));
-            }else if (card.getCardName().contains("弓箭手")) {
-                this.addEntity(UnitFactory.createArcher(team,x,y));
-            }
+            // 3. 从注册表取方法，直接调用
+            this.addEntity(creator .create(team,x,y));
             return true;
         }else {
-            System.out.printf("[卡牌部署] ❌ %s 尝试打出 [%s] 失败！圣水不足！(需要 %d 费，当前圣水不足)\n",
+            System.out.printf("[卡牌部署] ❌ %s 尝试打出 [%s] 失败！圣水不足！(需要 %d 费)\n",
                     team == Team.BLUE ? "蓝色方" : "红色方",
                     card.getCardName(), card.getElixirCost());
             return false;
         }
+    }
+
+    public BattleField() {
+        // 把卡牌名字和对应的工厂方法绑定
+        cardRegistry.put("王子卡牌", UnitFactory::createPrincessTower);
+        cardRegistry.put("弓箭手卡牌", UnitFactory::createArcher);
+        // 未来加新卡，只需在这里加一行
     }
 }

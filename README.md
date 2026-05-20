@@ -48,6 +48,7 @@ my-clash-royale-server/
 ├── engine/                # 🧠 【核心战斗引擎大脑】
 │   ├── BattleField.java   # 战场管理器：肚子里装一个 ArrayList<GameEntity>，负责实体的出生、死亡清理、多对多距离扫描
 |   ├── ElixirManager.Java # 圣水管理器：负责管理玩家的圣水自动恢复、上限控制以及出兵扣除
+|   ├── UnitCreator.java   # 单位创建器：通过阵营和坐标生成实体
 │   └── GameLoop.java      # 时间轮心跳循环：开辟独立线程，死守 30Hz（每秒30次Tick）节拍，驱动 BattleField 刷新
 │
 ├── player/                # 🪙 【玩家核心资产域】
