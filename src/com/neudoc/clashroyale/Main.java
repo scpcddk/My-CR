@@ -5,6 +5,9 @@ import com.neudoc.clashroyale.engine.BattleField;
 import com.neudoc.clashroyale.engine.GameLoop;
 import com.neudoc.clashroyale.factory.UnitFactory;
 import com.neudoc.clashroyale.model.Card;
+import com.neudoc.clashroyale.model.Deck;
+import com.neudoc.clashroyale.player.Player;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
@@ -30,27 +33,32 @@ public class Main {
 
         // ✅ 新增开始 ================================================
 
-        // 手牌模板
-        Card princeCard = new Card("王子卡牌",5,"SOLDIER");
-        Card archerCard = new Card("弓箭手卡牌", 3, "SOLDIER");
+        // 1. 严格按照游戏规则：凑齐 8 张卡牌作为一套完整的出战卡组
+        List<Card> eightCards = List.of(
+                new Card("王子卡牌", 5, "SOLDIER"),
+                new Card("弓箭手卡牌", 3, "SOLDIER"),
+                new Card("王子卡牌", 5, "SOLDIER"),
+                new Card("弓箭手卡牌", 3, "SOLDIER"),
+                new Card("弓箭手卡牌", 3, "SOLDIER"),
+                new Card("王子卡牌", 5, "SOLDIER"),
+                new Card("王子卡牌", 5, "SOLDIER"),
+                new Card("弓箭手卡牌", 3, "SOLDIER")
+        );
 
-        System.out.println("\n--- \uD83C\uDFAE 玩家【实时对局模拟】正式开始 ---");
+        // 2. 组装：把 8 张牌交给 Deck，再把 Deck 交给 Player
+        Deck blueDeck = new Deck(eightCards);
+        Player bluePlayer = new Player("player_001", Team.BLUE, blueDeck);
 
-        // 开局下王子（5费，刚好够）
-        battleField.deployCard(Team.BLUE, princeCard, 0.0, 0.0);
+        System.out.println("\n--- 🎮 规范化架构：卡组轮替测试开始 ---");
+        // 【回合 1】：看手牌，打出第 0 张
+        bluePlayer.showHand();
+        Card c1 = bluePlayer.getDeck().playCard(0);
+        battleField.deployCard(bluePlayer.getTeam(), c1, 0.0, 0.0);
 
-        // 立刻下弓箭手（圣水已空，失败）
-        battleField.deployCard(Team.BLUE, archerCard, 2.0, 0.0);
+        // 【回合 2】：再看手牌，验证循环补牌
+        bluePlayer.showHand();
 
-        // 等待8秒，圣水恢复
-        System.out.println("\n⏳ 双方选手开始控场、积攒圣水 (主线程观战 8 秒)... \n");
-        Thread.sleep(8000);
-
-        // 红方反手打出弓箭手（3费，成功）
-        battleField.deployCard(Team.RED, archerCard, 8.0, 0.0);
-
-        // 继续观战10秒
-        Thread.sleep(10000);
+        Thread.sleep(5000);
         // ✅ 新增结束 ================================================
 
         // 4. 战事休兵
