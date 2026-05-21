@@ -1,4 +1,5 @@
 package com.neudoc.clashroyale.model;
+
 import com.neudoc.clashroyale.constant.Team;
 import com.neudoc.clashroyale.constant.EntityState;
 
@@ -34,6 +35,11 @@ public abstract class GameEntity {
         }
     }
 
+    //帧打印战场状态
+    public String statusString(){
+        return String.format("name:%s team:%s state:%s hp:%d/%.0f x:%.2f y:%.2f atk:%.1f atkSpd:%.2f range:%.1f",
+                name, team, state, hp, (double)maxHp, x, y, attackPower, attackSpeed, range);
+    }
     public String getName() {return name;}
     public int getHp() {return hp;}
     public int getMaxHp() {return maxHp;}

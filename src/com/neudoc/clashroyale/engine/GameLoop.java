@@ -1,9 +1,15 @@
 package com.neudoc.clashroyale.engine;
 
+import com.neudoc.clashroyale.model.GameEntity;
+import java.util.List;
+
 public class GameLoop {
     private final BattleField battleField;
     private boolean running = false;
-    private final int fps = 10; // 每秒 10 次心跳，方便我们在控制台肉眼看清跑马灯
+    private final int fps = 30; // 每秒 30 次心跳，方便我们在控制台肉眼看清跑马灯
+
+    private int tickCount = 0;
+    private long lastPrintTime = 0;
 
     public GameLoop(BattleField battleField) {
         this.battleField = battleField;
@@ -30,6 +36,14 @@ public class GameLoop {
             // 💓 核心驱动：强行按一下战场的update按钮，触发【雷达寻敌 -> 移动 -> 厮杀 -> 收尸】
             battleField.update();
 
+            tickCount++;
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastPrintTime >=1000) {
+                System.out.println("[心跳统计] 这一秒的 Tick 数：" + tickCount);
+                printBattleFieldJson();// ✅ 输出战场 JSON
+                tickCount = 0;
+                lastPrintTime = currentTime;
+            }
             // 计算这一帧逻辑耗费了多少时间（防止卡顿抖动）
             long frameTime = System.currentTimeMillis() - startTime;
             long sleepTime = interval - frameTime; // 算出要补的休息时间
@@ -46,6 +60,24 @@ public class GameLoop {
         }
     }
 
+    // 简易战场状态 JSON 输出
+    private void printBattleFieldJson() {
+        List<GameEntity> entities = battleField.getEntities();
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"tick\":").append(tickCount)
+                .append(", \"entities\":").append(entities.size())
+                .append(", \"list\":[");
+        for (int i = 0; i < entities.size(); i++) {
+            GameEntity e = entities.get(i);
+            if (i > 0)
+                sb.append(",");
+            sb.append("{\"id\":\"").append(e.getName())
+                    .append("\",\"hp\":").append(e.getHp())
+                    .append("}");
+        }
+        sb.append("]}");
+        System.out.println("[战场状态] " + sb.toString());
+    }
     // 🛑 停止游戏时钟
     public  void stop() {
         this.running = false;
